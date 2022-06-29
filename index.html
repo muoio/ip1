@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Xem IP</title>
+  </head>
+  <body>
+    <div>
+      <label>IP address</label>
+      <label id="ip_address"></label>
+    </div>
+    <div>
+      <input placeholder="ID Telegram nguời nhận" id="ID_receiver">
+      <button id="send_ip">Gửi</button>
+    </div>
+    <script>
+
+      let ip_address = document.getElementById('ip_address');
+      let ID_receiver = document.getElementById('ID_receiver');
+      let send_ip = document.getElementById('send_ip');
+
+      async function get_ip(){
+        var requestOptions = {
+          method: 'GET',
+          redirect: 'follow'
+        };
+
+        let response = await fetch("http://www.geoplugin.net/json.gp", requestOptions);
+        response = await response.text();
+        response = JSON.parse(response);
+        let ip = response.geoplugin_request;
+        return ip;
+      }
+
+      async function send_telegram(text,id){
+        let bot_id = '5315206157:AAH78dOUYWL31qYaCW4rNblYH5NC4_L6CLk'
+        let url = 'https://api.telegram.org/bot'+bot_id+'/sendMessage?chat_id='+id+'&text='+text;
+        //console.log(url);
+        return await fetch(url);
+      }
+
+      send_ip.onclick = async function(){
+        let ip = await get_ip();
+        ip_address.innerText = ip;
+        localStorage['ID_receiver'] = ID_receiver.value;
+        await send_telegram(ip, ID_receiver.value);
+      }
+      window.onload = async function(){
+        let ip = await get_ip();
+        ip_address.innerText = ip;
+        if (localStorage.hasOwnProperty('ID_receiver'))
+          ID_receiver.value = localStorage['ID_receiver'];
+      }
+    </script>
+  </body>
+</html>
